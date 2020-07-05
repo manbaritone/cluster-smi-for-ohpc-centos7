@@ -3,6 +3,7 @@ Original: https://github.com/PatWie/cluster-smi
 
 This cluster-smi is supported for OpenHPC with CentOS 7.
 
+
 [![Build Status](http://ci.patwie.com/api/badges/PatWie/cluster-smi/status.svg)](http://ci.patwie.com/PatWie/cluster-smi)
 
 The same as `nvidia-smi` but for multiple machines.
@@ -66,45 +67,69 @@ All steps below are used to test possible changes to this codebase. See the [doc
 ### Requirements + Dependencies
 
 - CUDA (just for `cluster-smi-node.go`)
-- ZMQ (4.0.1)
+- ZMQ (4.1.0)
+- Go
 
 Unfortunately, *ZMQ* can only be dynamically linked (`libzmq.so`) to this repository and you need to build it separately by
 
 ```bash
-# compile ZMQ library for c++
-cd /path/to/your_lib_folder
-wget http:/files.patwie.com/mirror/zeromq-4.1.0-rc1.tar.gz
+# install golang
+yum install go
+
+# compile ZMQ library for c++ in root directory
+cd /root
+wget https://github.com/zeromq/zeromq4-1/releases/download/v4.1.0/zeromq-4.1.0-rc1.tar.gz
 tar -xf zeromq-4.1.0-rc1.tar.gz
 cd zeromq-4.1.0
 ./autogen.sh
 ./configure
-./configure --prefix=/path/to/your_lib_folder/zeromq-4.1.0/dist
 make
 make install
 ```
 
-Finally:
+### Clone cluster-smi to /opt (nfs to compute node)
 
-```
-export PKG_CONFIG_PATH=/path/to/your_lib_folder/zeromq-4.1.0/dist/lib/pkgconfig/:$PKG_CONFIG_PATH
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/your_lib_folder/zeromq-4.1.0/dist/lib
+```bash
+cd /opt
+git clone https://github.com/manbaritone/cluster-smi.git
+cd cluster-smi
 ```
 
-Edit the CFLAGS, LDFLAGS in file `nvvml/nvml.go` to match your setup.
+### Edit conf file
+
+```bash
+
+# Check the location of header and shared lib for Nvidia library
+locate nvml.h
+> /usr/local/cuda-10.2/targets/x86_64-linux/include/nvml.h
+ldconfig -p | grep nvidia-ml
+>	libnvidia-ml.so.1 (libc6,x86-64) => /lib64/libnvidia-ml.so.1
+>	libnvidia-ml.so.1 (libc6) => /lib/libnvidia-ml.so.1
+>	libnvidia-ml.so (libc6,x86-64) => /lib64/libnvidia-ml.so
+>	libnvidia-ml.so (libc6) => /lib/libnvidia-ml.so
+
+# Edit
+cd /opt/cluster-smi/nvml
+vi nvml.go
+#cgo CFLAGS: -I/usr/local/cuda-10.2/targets/x86_64-linux/include
+#cgo LDFLAGS: -lnvidia-ml -L/usr/local/cuda-10.2/targets/x86_64-linux/lib/stubs/
+```
 
 ### Compiling
 
 You need to copy one config-file
 
-```console
-user@host $ cp config.example.go config.go
+```bash
+cd /opt/cluster-smi/
+cp config.example.go config.go
+cp cluster-smi.example.yml cluster-smi.yml
 ```
 
 To obtain a portable small binary, I suggest to directly embed the configuration settings (ports, ip-addr) into the binary as compile-time constants. This way, the app is fully self-contained (excl. libzmq.so) and does not require any configuration-files. This can be done by editing `config.go`:
 
 ```go
 ...
-c.RouterIp = "127.0.0.1"
+c.RouterIp = "192.168.1.254"
 c.Tick = 3
 c.Timeout = 180
 c.Ports.Nodes = "9080"
@@ -126,29 +151,43 @@ make all
 
 ### Run
 
-1. start `cluster-smi-node` at different machines having GPUs
-2. start `cluster-smi-router` at a specific machine (machine with ip-addr: `cluster_smi_router_ip`)
-3. use `cluster-smi` like `nvidia-smi`
+1. run `export CLUSTER_SMI_CONFIG_PATH=/opt/cluster-smi/cluster-smi.yml`
+2. run `export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/`
+3. make symbolic link `ln -s /opt/cluster-smi/cluster-smi /usr/local/bin`
+4. start `/opt/cluster-smi/cluster-smi-node` at different machines having GPUs, compute nodes
+5. start `/opt/cluster-smi/cluster-smi-router` at a specific machine (machine with ip-addr: `cluster_smi_router_ip`), master (head) node
+6. use `cluster-smi` like `nvidia-smi`
 
 Make sure, the machines can communicate using the specifiec ports (e.g., `ufw allow 9080, 9081`)
 
-### Use systemd
+
+### Use systemd for master and compute node(s)
 
 To ease the use of this app, I suggest to add the *cluster-smi-node* into a systemd-service. An example config file can be found <a href="./docs/cluster-smi-node.example.service">here</a>. The steps would be
 
 ```bash
-# add new entry to systemd
-sudo cp docs/cluster-smi-node.example.service /etc/systemd/system/cluster-smi-node.service
-# edit the path to cluster-smi-node
-sudo nano /etc/systemd/system/cluster-smi-node.service
+# edit the path to cluster-smi-node and cluster-smi-router
+sudo vi /etc/systemd/system/cluster-smi-node.service
+sudo vi /etc/systemd/system/cluster-smi-router.service
+# add new entry to systemd for master node
+sudo cp docs/cluster-smi-node.service /etc/systemd/system/
+sudo cp docs/cluster-smi-router.service /etc/systemd/system/
+# add new entry to systemd for compute node(s)
+sudo cp docs/cluster-smi-node.service /opt/ohpc/admin/images/centos7.5/etc/systemd/system/
 # make sure you can start and stop the service (have a look at you cluster-smi client)
 sudo service cluster-smi-node start
-sudo service cluster-smi-node stop
-# register cluster-smi-node to start on reboots
+sudo service cluster-smi-router start
+# register cluster-smi-node and cluster-smi-router to start on reboots for master node
 sudo systemctl enable cluster-smi-node.service
-
-# last, start the service
-sudo service cluster-smi-node start
+sudo systemctl enable cluster-smi-router.service
+# register cluster-smi-node to start on reboots for compute node(s)
+export CHROOT=/opt/ohpc/admin/images/centos7.5
+chroot $CHROOT
+systemctl enable cluster-smi-node.service
+# rewrite image file for compute node
+wwbootstrap `uname -r`
+wwvnfs --chroot $CHROOT
+pdsh -w c1 reboot now
 ```
 
 ## Show all information
