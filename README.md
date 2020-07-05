@@ -180,22 +180,28 @@ To ease the use of this app, I suggest to add the *cluster-smi-node* into a syst
 # edit the path to cluster-smi-node and cluster-smi-router
 sudo vi /etc/systemd/system/cluster-smi-node.service
 sudo vi /etc/systemd/system/cluster-smi-router.service
+
 # add new entry to systemd for master node
 sudo cp docs/cluster-smi-node.service /etc/systemd/system/
 sudo cp docs/cluster-smi-router.service /etc/systemd/system/
+
 # add new entry to systemd for compute node(s)
 sudo cp docs/cluster-smi-node.service /opt/ohpc/admin/images/centos7.5/etc/systemd/system/
+
 # make sure you can start and stop the service (have a look at you cluster-smi client)
 sudo service cluster-smi-node start
 sudo service cluster-smi-router start
+
 # register cluster-smi-node and cluster-smi-router to start on reboots for master node
 sudo systemctl enable cluster-smi-node.service
 sudo systemctl enable cluster-smi-router.service
+
 # register cluster-smi-node to start on reboots for compute node(s)
 export CHROOT=/opt/ohpc/admin/images/centos7.5
 chroot $CHROOT
 systemctl enable cluster-smi-node.service
 exit
+
 # rewrite image file for compute node
 wwbootstrap `uname -r`
 wwvnfs --chroot $CHROOT
