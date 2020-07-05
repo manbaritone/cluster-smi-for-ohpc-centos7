@@ -1,8 +1,8 @@
 package nvml
 
 /*
-#cgo CFLAGS: -I/usr/local/cuda/include
-#cgo LDFLAGS: -lnvidia-ml -L/usr/local/cuda-8.0/targets/x86_64-linux/lib/stubs/
+#cgo CFLAGS: -I/usr/local/cuda-10.2/targets/x86_64-linux/include
+#cgo LDFLAGS: -lnvidia-ml -L/usr/local/cuda-10.2/targets/x86_64-linux/lib/stubs/
 
 // #cgo CFLAGS: -I/graphics/opt/opt_Ubuntu16.04/cuda/toolkit_8.0/cuda/include
 // #cgo LDFLAGS: -lnvidia-ml -L/graphics/opt/opt_Ubuntu16.04/cuda/toolkit_8.0/cuda/lib64/stubs
