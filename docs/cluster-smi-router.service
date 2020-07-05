@@ -10,7 +10,7 @@ Environment=LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/
 Environment=CLUSTER_SMI_CONFIG_PATH=/opt/cluster-smi/cluster-smi.yml
 Type=simple
 StandardOutput=journal+console
-ExecStart=/path/to/cluster-smi-router
+ExecStart=/opt/cluster-smi/cluster-smi-router
 
 [Install]
 WantedBy=multi-user.target
