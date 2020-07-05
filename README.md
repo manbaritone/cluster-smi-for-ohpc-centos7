@@ -195,6 +195,7 @@ sudo systemctl enable cluster-smi-router.service
 export CHROOT=/opt/ohpc/admin/images/centos7.5
 chroot $CHROOT
 systemctl enable cluster-smi-node.service
+exit
 # rewrite image file for compute node
 wwbootstrap `uname -r`
 wwvnfs --chroot $CHROOT
