@@ -1,5 +1,5 @@
 # CLUSTER-SMI
-Original: https://github.com/PatWie/cluster-smi
+Original: https://github.com/PatWie/cluster-smi and https://qiita.com/tttamaki/items/d51dbd195641acf98433
 
 This cluster-smi is supported for OpenHPC with CentOS 7.
 
