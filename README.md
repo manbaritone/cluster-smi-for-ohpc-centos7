@@ -1,4 +1,7 @@
 # CLUSTER-SMI
+Original: https://github.com/PatWie/cluster-smi
+This cluster-smi is supported for OpenHPC with CentOS 7.
+
 [![Build Status](http://ci.patwie.com/api/badges/PatWie/cluster-smi/status.svg)](http://ci.patwie.com/PatWie/cluster-smi)
 
 The same as `nvidia-smi` but for multiple machines.
