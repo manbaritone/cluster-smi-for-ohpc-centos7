@@ -148,6 +148,17 @@ cd ..
 make all
 ```
 
+### Specify the ip of the machine to be router to yml
+
+```bash
+vi cluster-smi.yml
+> tick: 3               # tick for receiving data in seconds
+> timeout: 180             # duration considered as timeout (machine is considered as offline after x sec)
+> router_ip: 192.168.1.254     # ip of cluster-smi-server
+> ports:
+>   nodes: 9080            # port of cluster-smi-server, which nodes send to
+>   clients: 9081          # port of cluster-smi-server, where clients subscribe to
+```
 
 ### Run
 
