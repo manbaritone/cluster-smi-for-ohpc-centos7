@@ -4,8 +4,6 @@ Original: https://github.com/PatWie/cluster-smi and https://qiita.com/tttamaki/i
 This `cluster-smi` is modified for OpenHPC with CentOS 7.
 
 
-[![Build Status](http://ci.patwie.com/api/badges/PatWie/cluster-smi/status.svg)](http://ci.patwie.com/PatWie/cluster-smi)
-
 The same as `nvidia-smi` but for multiple machines.
 
 Run `cluster-smi` and the output should be something like
