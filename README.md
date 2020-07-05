@@ -174,7 +174,7 @@ Make sure, the machines can communicate using the specifiec ports (e.g., `ufw al
 
 ### Use systemd for master and compute node(s)
 
-To ease the use of this app, I suggest to add the *cluster-smi-node* into a systemd-service. An example config file can be found <a href="./docs/cluster-smi-node.example.service">here</a>. The steps would be
+To ease the use of this app, I suggest to add the *cluster-smi-node* into a systemd-service. An example config file can be found <a href="./docs/cluster-smi-node.service">here</a>. The steps would be
 
 ```bash
 # edit the path to cluster-smi-node and cluster-smi-router
