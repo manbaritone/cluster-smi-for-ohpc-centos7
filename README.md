@@ -1,7 +1,7 @@
 # CLUSTER-SMI
 Original: https://github.com/PatWie/cluster-smi and https://qiita.com/tttamaki/items/d51dbd195641acf98433
 
-This `cluster-smi` is modified for OpenHPC with CentOS 7.
+This `cluster-smi` is modified for OpenHPC with CentOS 7 and update nvml for new GPU models.
 
 
 The same as `nvidia-smi` but for multiple machines.
