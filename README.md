@@ -85,10 +85,11 @@ make
 make install
 ```
 
-### Clone cluster-smi to /opt (nfs to compute node)
+### Clone cluster-smi to /root (make under root mode)
 
 ```bash
-cd /opt
+mkdir -p ~/go/src/github.com/patwie
+cd ~/go/src/github.com/patwie
 git clone https://github.com/manbaritone/cluster-smi.git
 cd cluster-smi
 ```
@@ -107,7 +108,7 @@ ldconfig -p | grep nvidia-ml
 >	libnvidia-ml.so (libc6) => /lib/libnvidia-ml.so
 
 # Edit
-cd /opt/cluster-smi/nvml
+cd ~/go/src/github.com/patwie/cluster-smi/nvml
 vi nvml.go
 #cgo CFLAGS: -I/usr/local/cuda-10.2/targets/x86_64-linux/include
 #cgo LDFLAGS: -lnvidia-ml -L/usr/local/cuda-10.2/targets/x86_64-linux/lib/stubs/
@@ -118,7 +119,7 @@ vi nvml.go
 You need to copy one config-file
 
 ```bash
-cd /opt/cluster-smi/
+cd ~/go/src/github.com/patwie/cluster-smi/
 cp config.example.go config.go
 cp cluster-smi.example.yml cluster-smi.yml
 ```
@@ -156,6 +157,12 @@ vi cluster-smi.yml
 > ports:
 >   nodes: 9080            # port of cluster-smi-server, which nodes send to
 >   clients: 9081          # port of cluster-smi-server, where clients subscribe to
+```
+
+### Copy cluster-smi folder to /opt (nfs to compute node)
+
+```bash
+cp -r ~/go/src/github.com/patwie/cluster-smi /opt
 ```
 
 ### Run
